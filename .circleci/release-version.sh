@@ -172,6 +172,7 @@ else
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
     echo "$CHANGELOG"
     head -n "$NEXT_LINES" < CHANGELOG.md
+    echo ""
     echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
 
@@ -191,8 +192,6 @@ else
 fi
 
 # Create pull requests
-GH_PR_CHANGELOG_ESCAPED="${CHANGELOG//\"/\\\"}"
-GH_PR_CHANGELOG_ESCAPED="${GH_PR_CHANGELOG_ESCAPED//$'\n'/\\n}"
 RELEASE_BRANCH="${RELEASE_BRANCH:-"master"}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-"develop"}"
 BACKPORT_RELEASE_COMMIT_BRANCH_TEMPLATE="chore/release-$RELEASE_TAG"
@@ -201,10 +200,30 @@ PR_BASES="${PR_BASES:-"$RELEASE_BRANCH $DEFAULT_BRANCH"}"
 git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
 for PR_BASE in $PR_BASES; do
     HEAD_BRANCH="$BACKPORT_RELEASE_COMMIT_BRANCH_TEMPLATE-$PR_BASE"
+    GH_PR_BODY="$CHANGELOG
+
+----
+
+## Fast-forward merge instructions
+
+1. Approve PR
+2. Then run these commands in your local git repository:
+
+\`\`\`sh
+git fetch --all
+git switch $PR_BASE
+git pull origin $PR_BASE
+git merge origin/$HEAD_BRANCH --ff-only
+git push origin $PR_BASE
+\`\`\`
+"
+    GH_PR_BODY_ESCAPED="${GH_PR_BODY//\"/\\\"}"
+    GH_PR_BODY_ESCAPED="${GH_PR_BODY_ESCAPED//$'\n'/\\n}"
+
     GH_PULL_REQUEST_TITLE="chore(release): ${RELEASE_TAG} :tada: [$PR_BASE]"
     GH_PULL_REQUEST_BODY="{
     \"title\": \"${GH_PULL_REQUEST_TITLE}\",
-    \"body\": \"${GH_PR_CHANGELOG_ESCAPED}\",
+    \"body\": \"${GH_PR_BODY_ESCAPED}\",
     \"head\": \"${HEAD_BRANCH}\",
     \"base\": \"${PR_BASE}\"
 }"
@@ -225,3 +244,5 @@ for PR_BASE in $PR_BASES; do
     fi
 done
 git remote remove authorized
+
+echo "Please approve and fast-forward merge release pull requests!"
