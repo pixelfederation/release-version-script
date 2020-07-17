@@ -1,3 +1,11 @@
+# [0.2.0](https://github.com/k911/test-release-version-script/compare/v0.1.0...v0.2.0) (2020-07-17)
+
+[Full changelog](https://github.com/k911/test-release-version-script/compare/v0.1.0...v0.2.0)
+
+### Features
+
+* **releaser:** fix some things ([748343d](https://github.com/k911/test-release-version-script/commit/748343ddc5deef82997e502a028ac28d65c38613))
+
 # [0.1.0](https://github.com/k911/test-release-version-script/compare/d3dfc6016ca7c5f88bbf75cf52377a77ab98237e...v0.1.0) (2020-07-17)
 
 [Full changelog](https://github.com/k911/test-release-version-script/compare/v0.0.0...v0.1.0)
