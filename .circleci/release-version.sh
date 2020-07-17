@@ -136,6 +136,8 @@ for REV in $REVS; do
 done
 git remote remove authorized
 
+GH_APPROVER_NAME="${GH_APPROVER_NAME:?"Provider \"GH_APPROVER_NAME\" variable"}"
+GH_APPROVER_TOKEN="${GH_APPROVER_TOKEN:?"Provider \"GH_APPROVER_TOKEN\" variable with GitHub Personal Access Token"}"
 DEFAULT_BRANCH="${DEFAULT_BRANCH:-"develop"}"
 GH_PULL_REQUEST_BACKPORT_BODY="{
     \"title\": \"chore(release): Backport of release commit ${RELEASE_TAG}\",
@@ -151,7 +153,7 @@ if [ "0" = "$DRY_RUN" ]; then
         --data "${GH_PULL_REQUEST_BACKPORT_BODY}")"
 
     # Approve Pull Request
-    curl -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "$(echo "${PULL_REQUEST_CREATED}" | jq .url)/reviews" \
+    curl -u "${GH_APPROVER_NAME}:${GH_APPROVER_TOKEN}" -X POST "$(echo "${PULL_REQUEST_CREATED}" | jq .url)/reviews" \
         -H "Content-Type: application/vnd.github.v3+json" \
         --data '{"event":"APPROVE"}'
 fi
