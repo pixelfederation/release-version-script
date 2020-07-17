@@ -1,0 +1,25 @@
+version: "3.6"
+
+volumes:
+  coverage: {}
+
+services:
+  releaser:
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-test-release-script}-releaser:${TAG:-local}"
+    build:
+      context: ./.circleci
+      args:
+        NODE_TAG: "${NODE_VERSION:-14}-alpine${ALPINE_VERSION:-3.12}"
+    environment:
+      DEBUG: "${DEBUG:-1}"
+      DRY_RUN: "${DRY_RUN:-1}"
+      GH_REPOSITORY: "${GH_REPOSITORY:-k911/test-release-version-script}"
+      GH_COMMITER_NAME: "${GH_COMMITER_NAME:-swoole-bundle-bot}"
+      GH_COMMITER_EMAIL: "${GH_COMMITER_EMAIL:-swoolebundle@gmail.com}"
+      GH_TOKEN: "${GH_TOKEN:-xxxxxxxx}"
+      GH_RELEASE_DRAFT: "${GH_RELEASE_DRAFT:-true}"
+      GH_RELEASE_PRERELEASE: "${GH_RELEASE_PRERELEASE:-false}"
+    volumes:
+      - "./.git:/usr/src/app/.git:rw"
+      - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
+      - "./.circleci/release-version.sh:/usr/local/bin/release-version:rw"
