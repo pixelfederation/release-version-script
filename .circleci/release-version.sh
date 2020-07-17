@@ -39,7 +39,7 @@ if [[ "$GIT_COMMIT_MESSAGE_FIRST_LINE" != "$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MA
     NEW_VERSION="$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED"
     RELEASE_TAG="v$NEW_VERSION"
 
-    echo "Matched release commit ($GIT_COMMIT_MESSAGE_FIRST_LINE)"
+    echo "Matched release commit: $GIT_COMMIT_MESSAGE_FIRST_LINE"
     echo "Releasing version: $NEW_VERSION"
 
     GH_RELEASE_NOTES="$(conventional-changelog -p angular | awk 'NR > 3 { print }')"
@@ -50,9 +50,9 @@ if [[ "$GIT_COMMIT_MESSAGE_FIRST_LINE" != "$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MA
     fi
 
     # Create and push tag
-    git tag "$RELEASE_TAG"
     git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
     if [ "0" = "$DRY_RUN" ]; then
+        git tag "$RELEASE_TAG"
         git push authorized "$RELEASE_TAG"
     else
         echo "Pushing $RELEASE_TAG.."
@@ -220,7 +220,7 @@ git push origin $PR_BASE
     GH_PR_BODY_ESCAPED="${GH_PR_BODY//\"/\\\"}"
     GH_PR_BODY_ESCAPED="${GH_PR_BODY_ESCAPED//$'\n'/\\n}"
 
-    GH_PULL_REQUEST_TITLE="chore(release): ${RELEASE_TAG} :tada: [$PR_BASE]"
+    GH_PULL_REQUEST_TITLE="chore(release): ${RELEASE_TAG} [$PR_BASE]"
     GH_PULL_REQUEST_BODY="{
     \"title\": \"${GH_PULL_REQUEST_TITLE}\",
     \"body\": \"${GH_PR_BODY_ESCAPED}\",
