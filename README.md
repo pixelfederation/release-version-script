@@ -9,3 +9,4 @@ export GH_TOKEN="xxxxx"
 
 docker-compose run --rm releaser
 ```
+

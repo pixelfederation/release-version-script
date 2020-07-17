@@ -7,6 +7,11 @@ if [[ "1" = "${DEBUG}" ]]; then
     set -x
 fi
 
+DRY_RUN="${DRY_RUN:-0}"
+if [[ "1" = "${DRY_RUN}" ]]; then
+    echo "Dry running.."
+fi
+
 if [[ "" = "$CURRENT_VERSION" ]]; then
   CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/' || echo "0.0.0")"
 fi
@@ -14,13 +19,87 @@ fi
 # Safe check - skips relese commit generation when already tagged commit
 if [[ $(git name-rev --name-only --tags HEAD) = "v$CURRENT_VERSION" ]]; then
     echo "Already tagged or no new commits introduced. Skipping.."
-    exit
+    exit 0
 fi
 
-DRY_RUN="${DRY_RUN:-0}"
+# Set GH env variables
+GH_COMMITER_NAME="${GH_COMMITER_NAME:-k911}"
+GH_COMMITER_EMAIL="${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
+GH_REPOSITORY="${GH_REPOSITORY:-k911/swoole-bundle}"
+GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
 
-if [[ "1" = "${DRY_RUN}" ]]; then
-    echo "Dry running.."
+# Configure git
+git config user.name "${GH_COMMITER_NAME}"
+git config user.email "${GH_COMMITER_EMAIL}"
+
+GIT_COMMIT_MESSAGE_FIRST_LINE="$(git log -1 --pretty=%B | head -n 1)"
+GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED="$(echo "$GIT_COMMIT_MESSAGE_FIRST_LINE" | sed -E 's/^chore\(release\)\: v([a-zA-Z0-9\.\-]+) \:tada\:/\1/')"
+# If sed matches, it means it is a release commit, otherwise strings should be equal
+if [[ "$GIT_COMMIT_MESSAGE_FIRST_LINE" != "$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED" ]]; then
+    NEW_VERSION="$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED"
+    RELEASE_TAG="v$NEW_VERSION"
+
+    echo "Matched release commit ($GIT_COMMIT_MESSAGE_FIRST_LINE)"
+    echo "Releasing version: $NEW_VERSION"
+
+    GH_RELEASE_NOTES="$(conventional-changelog -p angular | awk 'NR > 3 { print }')"
+    if [ "" = "$(echo -n "$GH_RELEASE_NOTES" | tr '\n' ' ')" ]; then
+        GH_RELEASE_NOTES="### Miscellaneous
+
+* Minor fixes"
+    fi
+
+    # Create and push tag
+    git tag "$RELEASE_TAG"
+    git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
+    if [ "0" = "$DRY_RUN" ]; then
+        git push authorized "$RELEASE_TAG"
+    else
+        echo "Pushing $RELEASE_TAG.."
+    fi
+    git remote remove authorized
+
+    # Make github release
+    GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
+    GH_RELEASE_PRERELEASE="${GH_RELEASE_PRERELEASE:-false}"
+    GH_RELEASE_DESCRIPTION="## Changelog
+
+[Full changelog](https://github.com/${GH_REPOSITORY}/compare/v${CURRENT_VERSION}...v${NEW_VERSION})
+
+${GH_RELEASE_NOTES}
+
+## Installation
+
+\`\`\`sh
+composer require ${GH_REPOSITORY} ^${NEW_VERSION}
+\`\`\`
+"
+    GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
+    GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION_ESCAPED//$'\n'/\\n}"
+    GH_RELEASE_REQUEST_BODY="{
+    \"tag_name\": \"${RELEASE_TAG}\",
+    \"target_commitish\": \"master\",
+    \"name\": \"${RELEASE_TAG}\",
+    \"body\": \"${GH_RELEASE_DESCRIPTION_ESCAPED}\",
+    \"draft\": ${GH_RELEASE_DRAFT},
+    \"prerelease\": ${GH_RELEASE_PRERELEASE}
+}"
+
+    if [ "0" = "$DRY_RUN" ]; then
+        curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/releases" \
+            -H "Content-Type: application/vnd.github.v3+json" \
+            --data "${GH_RELEASE_REQUEST_BODY}" | jq
+    else
+        echo "Release description:"
+        echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+        echo "${GH_RELEASE_DESCRIPTION}"
+        echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
+        echo "Release request body:"
+        echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+        echo "${GH_RELEASE_REQUEST_BODY}"
+        echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
+    fi
+    exit 0
 fi
 
 # Guess new version number
@@ -54,23 +133,15 @@ elif [[ "${RECOMMENDED_BUMP}" = "patch" ]]; then
     V[2]=$(( V[2]+1 ));
 else
     echo "Could not bump version"
-    exit
+    exit 1
 fi
 
 NEW_VERSION_SEM="${V[0]}.${V[1]}.${V[2]}"
 NEW_VERSION=${CURRENT_VERSION//${OLD_VERSION_SEM}/${NEW_VERSION_SEM}}
 
-echo "Releasing version: ${NEW_VERSION}"
+echo "Preparing release of version: ${NEW_VERSION}"
 
 RELEASE_TAG="v${NEW_VERSION}"
-GH_COMMITER_NAME="${GH_COMMITER_NAME:-k911}"
-GH_COMMITER_EMAIL="${GH_COMMITER_EMAIL:-konradobal@gmail.com}"
-GH_REPOSITORY="${GH_REPOSITORY:-k911/swoole-bundle}"
-
-# Configure git
-git config user.name "${GH_COMMITER_NAME}"
-git config user.email "${GH_COMMITER_EMAIL}"
-
 # Save release notes
 git tag "${RELEASE_TAG}" > /dev/null 2>&1
 GH_RELEASE_NOTES_HEADER="$(conventional-changelog -p angular -r 2 | awk 'NR > 4 { print }' | head -n 1)"
@@ -104,7 +175,7 @@ else
     echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
 
-# Create release commit and tag it
+# Create release commit
 COMMIT_MESSAGE="chore(release): ${RELEASE_TAG} :tada:
 $(conventional-changelog | awk 'NR > 1 { print }')
 "
@@ -112,7 +183,6 @@ $(conventional-changelog | awk 'NR > 1 { print }')
 if [ "0" = "$DRY_RUN" ]; then
     git add CHANGELOG.md
     git commit -m "${COMMIT_MESSAGE}"
-    git tag "${RELEASE_TAG}"
 else
     echo "Commit message:"
     echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
@@ -120,81 +190,38 @@ else
     echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
 fi
 
-# Push commit and tag
-GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
+# Create pull requests
+GH_PR_CHANGELOG_ESCAPED="${CHANGELOG//\"/\\\"}"
+GH_PR_CHANGELOG_ESCAPED="${GH_PR_CHANGELOG_ESCAPED//$'\n'/\\n}"
 RELEASE_BRANCH="${RELEASE_BRANCH:-"master"}"
-BACKPORT_RELEASE_COMMIT_BRANCH="chore/release-$RELEASE_TAG"
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-"develop"}"
+BACKPORT_RELEASE_COMMIT_BRANCH_TEMPLATE="chore/release-$RELEASE_TAG"
+PR_BASES="${PR_BASES:-"$RELEASE_BRANCH $DEFAULT_BRANCH"}"
 
-REVS="$RELEASE_TAG HEAD:$RELEASE_BRANCH HEAD:$BACKPORT_RELEASE_COMMIT_BRANCH"
 git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
-for REV in $REVS; do
+for PR_BASE in $PR_BASES; do
+    HEAD_BRANCH="$BACKPORT_RELEASE_COMMIT_BRANCH_TEMPLATE-$PR_BASE"
+    GH_PULL_REQUEST_TITLE="chore(release): ${RELEASE_TAG} :tada: [$PR_BASE]"
+    GH_PULL_REQUEST_BODY="{
+    \"title\": \"${GH_PULL_REQUEST_TITLE}\",
+    \"body\": \"${GH_PR_CHANGELOG_ESCAPED}\",
+    \"head\": \"${HEAD_BRANCH}\",
+    \"base\": \"${PR_BASE}\"
+}"
     if [ "0" = "$DRY_RUN" ]; then
-        git push authorized "$REV"
+        git push authorized "HEAD:$HEAD_BRANCH"
+
+        curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/pulls" \
+            -H "Content-Type: application/vnd.github.v3+json" \
+            --data "${GH_PULL_REQUEST_BACKPORT_BODY}" | jq
     else
-        echo "Pushing $REV.."
+        echo "Push release commit to head branch '$HEAD_BRANCH"
+        echo "Create release pull request to '$PR_BASE' from head branch '$HEAD_BRANCH'"
+        echo "Pull request title: $GH_PULL_REQUEST_TITLE"
+        echo "Pull request body:"
+        echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
+        echo "${GH_PULL_REQUEST_BODY}"
+        echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
     fi
 done
 git remote remove authorized
-
-GH_APPROVER_NAME="${GH_APPROVER_NAME:?"Provider \"GH_APPROVER_NAME\" variable"}"
-GH_APPROVER_TOKEN="${GH_APPROVER_TOKEN:?"Provider \"GH_APPROVER_TOKEN\" variable with GitHub Personal Access Token"}"
-DEFAULT_BRANCH="${DEFAULT_BRANCH:-"develop"}"
-GH_PULL_REQUEST_BACKPORT_BODY="{
-    \"title\": \"chore(release): Backport of release commit ${RELEASE_TAG}\",
-    \"body\": \"Backport of release commit: \`${RELEASE_TAG}\`\",
-    \"head\": \"${BACKPORT_RELEASE_COMMIT_BRANCH}\",
-    \"base\": \"${DEFAULT_BRANCH}\"
-}"
-
-if [ "0" = "$DRY_RUN" ]; then
-    # Create pull request with backport of release commit
-    PULL_REQUEST_CREATED="$(curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/pulls" \
-        -H "Content-Type: application/vnd.github.v3+json" \
-        --data "${GH_PULL_REQUEST_BACKPORT_BODY}")"
-
-    # Approve Pull Request
-    curl -u "${GH_APPROVER_NAME}:${GH_APPROVER_TOKEN}" -X POST "$(echo "${PULL_REQUEST_CREATED}" | jq .url)/reviews" \
-        -H "Content-Type: application/vnd.github.v3+json" \
-        --data '{"event":"APPROVE"}'
-fi
-
-# Make github release
-GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
-GH_RELEASE_PRERELEASE="${GH_RELEASE_PRERELEASE:-false}"
-GH_RELEASE_DESCRIPTION="## Changelog
-
-[Full changelog](https://github.com/${GH_REPOSITORY}/compare/v${CURRENT_VERSION}...v${NEW_VERSION})
-
-${GH_RELEASE_NOTES}
-
-## Installation
-
-\`\`\`sh
-composer require ${GH_REPOSITORY} ^${NEW_VERSION}
-\`\`\`
-"
-GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION//\"/\\\"}"
-GH_RELEASE_DESCRIPTION_ESCAPED="${GH_RELEASE_DESCRIPTION_ESCAPED//$'\n'/\\n}"
-GH_RELEASE_REQUEST_BODY="{
-    \"tag_name\": \"${RELEASE_TAG}\",
-    \"target_commitish\": \"master\",
-    \"name\": \"${RELEASE_TAG}\",
-    \"body\": \"${GH_RELEASE_DESCRIPTION_ESCAPED}\",
-    \"draft\": ${GH_RELEASE_DRAFT},
-    \"prerelease\": ${GH_RELEASE_PRERELEASE}
-}"
-
-if [ "0" = "$DRY_RUN" ]; then
-    curl -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/releases" \
-        -H "Content-Type: application/vnd.github.v3+json" \
-        --data "${GH_RELEASE_REQUEST_BODY}"
-else
-    echo "Release description:"
-    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
-    echo "${GH_RELEASE_DESCRIPTION}"
-    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
-    echo "Release request body:"
-    echo "⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽"
-    echo "${GH_RELEASE_REQUEST_BODY}"
-    echo "⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺"
-fi
