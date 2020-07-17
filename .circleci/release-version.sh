@@ -122,8 +122,10 @@ fi
 
 # Push commit and tag
 GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access Token"}"
-REVS="$RELEASE_TAG HEAD:master HEAD:develop"
+RELEASE_BRANCH="${RELEASE_BRANCH:-"master"}"
+BACKPORT_RELEASE_COMMIT_BRANCH="chore/release-$RELEASE_TAG"
 
+REVS="$RELEASE_TAG HEAD:$RELEASE_BRANCH HEAD:$BACKPORT_RELEASE_COMMIT_BRANCH"
 git remote add authorized "https://${GH_COMMITER_NAME}:${GH_TOKEN}@github.com/${GH_REPOSITORY}.git"
 for REV in $REVS; do
     if [ "0" = "$DRY_RUN" ]; then
@@ -133,6 +135,26 @@ for REV in $REVS; do
     fi
 done
 git remote remove authorized
+
+DEFAULT_BRANCH="${DEFAULT_BRANCH:-"develop"}"
+GH_PULL_REQUEST_BACKPORT_BODY="{
+    \"title\": \"chore(release): Backport of release commit ${RELEASE_TAG}\",
+    \"body\": \"Backport of release commit: \`${RELEASE_TAG}\`\",
+    \"head\": \"${BACKPORT_RELEASE_COMMIT_BRANCH}\",
+    \"base\": \"${DEFAULT_BRANCH}\"
+}"
+
+if [ "0" = "$DRY_RUN" ]; then
+    # Create pull request with backport of release commit
+    PULL_REQUEST_CREATED="$(curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/pulls" \
+        -H "Content-Type: application/vnd.github.v3+json" \
+        --data "${GH_PULL_REQUEST_BACKPORT_BODY}")"
+
+    # Approve Pull Request
+    curl -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "$(echo "${PULL_REQUEST_CREATED}" | jq .url)/reviews" \
+        -H "Content-Type: application/vnd.github.v3+json" \
+        --data '{"event":"APPROVE"}'
+fi
 
 # Make github release
 GH_RELEASE_DRAFT="${GH_RELEASE_DRAFT:-false}"
@@ -162,7 +184,7 @@ GH_RELEASE_REQUEST_BODY="{
 
 if [ "0" = "$DRY_RUN" ]; then
     curl -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/releases" \
-        -H "Content-Type: application/json" \
+        -H "Content-Type: application/vnd.github.v3+json" \
         --data "${GH_RELEASE_REQUEST_BODY}"
 else
     echo "Release description:"
