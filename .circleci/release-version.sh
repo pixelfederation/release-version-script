@@ -8,7 +8,7 @@ if [[ "1" = "${DEBUG}" ]]; then
 fi
 
 if [[ "" = "$CURRENT_VERSION" ]]; then
-  CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/')"
+  CURRENT_VERSION="$(git describe --abbrev=0 --tags | sed -E 's/v(.*)/\1/' || echo "0.0.0")"
 fi
 
 # Safe check - skips relese commit generation when already tagged commit
