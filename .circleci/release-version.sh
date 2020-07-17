@@ -232,7 +232,7 @@ git push origin $PR_BASE
 
         curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/pulls" \
             -H "Content-Type: application/vnd.github.v3+json" \
-            --data "${GH_PULL_REQUEST_BACKPORT_BODY}" | jq
+            --data "${GH_PULL_REQUEST_BODY}" | jq
     else
         echo "Push release commit to head branch '$HEAD_BRANCH"
         echo "Create release pull request to '$PR_BASE' from head branch '$HEAD_BRANCH'"
