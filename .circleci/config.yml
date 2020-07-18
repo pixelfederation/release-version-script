@@ -127,30 +127,42 @@ jobs:
 
 workflows:
   version: 2.1
-  pull-request-checks:
+  pull-request-checks-trusted:
     when:
       not:
         equal: [ master, << pipeline.git.branch >> ]
     jobs:
-      - validate-commit-message
-      - shellcheck
-      - approve-docker-bake:
+      - validate-commit-message:
+          <<: *filter-run-on-local-branches
+      - shellcheck:
+          <<: *filter-run-on-local-branches
+      - docker-bake:
+          context: release-version-script-dockerhub
+          requires:
+            - validate-commit-message
+            - shellcheck
+      - releaser-dry-run:
+          requires:
+            - docker-bake
+
+  pull-request-checks-untrusted:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
+    jobs:
+      - validate-commit-message:
           <<: *filter-run-on-forked-pull-requests
+      - shellcheck:
+          <<: *filter-run-on-forked-pull-requests
+      - approve-docker-bake:
           type: approval
           requires:
             - validate-commit-message
             - shellcheck
       - docker-bake:
-          <<: *filter-run-on-forked-pull-requests
           context: release-version-script-dockerhub
           requires:
             - approve-docker-bake
-      - docker-bake:
-          <<: *filter-run-on-local-branches
-          context: release-version-script-dockerhub
-          requires:
-            - validate-commit-message
-            - shellcheck
       - releaser-dry-run:
           requires:
             - docker-bake
