@@ -10,7 +10,7 @@ services:
     environment:
       DEBUG: "${DEBUG:-1}"
       DRY_RUN: "${DRY_RUN:-1}"
-      GH_REPOSITORY: "${GH_REPOSITORY:-k911/test-release-version-script}"
+      GH_REPOSITORY: "${GH_REPOSITORY:-k911/release-version-script}"
       GH_COMMITER_NAME: "${GH_COMMITER_NAME:-swoole-bundle-bot}"
       GH_COMMITER_EMAIL: "${GH_COMMITER_EMAIL:-swoolebundle@gmail.com}"
       GH_TOKEN: "${GH_TOKEN:-xxxxxxxx}"
