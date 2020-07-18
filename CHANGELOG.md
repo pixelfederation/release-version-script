@@ -1,3 +1,11 @@
+## [0.2.1](https://github.com/k911/release-version-script/compare/v0.2.0...v0.2.1) (2020-07-18)
+
+[Full changelog](https://github.com/k911/release-version-script/compare/v0.2.0...v0.2.1)
+
+### Bug Fixes
+
+* try to fix push a new branch to create PR ([f078197](https://github.com/k911/release-version-script/commit/f078197b4e710485f6765719fd5c4a0e674e2e98))
+
 # [0.2.0](https://github.com/k911/test-release-version-script/compare/v0.1.0...v0.2.0) (2020-07-17)
 
 [Full changelog](https://github.com/k911/test-release-version-script/compare/v0.1.0...v0.2.0)
