@@ -24,35 +24,9 @@ aliases:
       branches:
         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
         only: /pull\/[0-9]+/
-
-jobs:
-  shellcheck:
-    docker:
-      - image: koalaman/shellcheck-alpine:stable
-    steps:
-      - checkout
-      - run:
-          name: Shellcheck sh scripts
-          command: shellcheck *.sh
-
-  validate-commit-message:
-    docker:
-      - image: node:lts-alpine
-    steps:
-      - checkout
-      - run:
-          name: Install git
-          command: apk add --no-cache git
-      - run:
-          name: Install commitlint
-          command: |-
-            npm config set unsafe-perm true
-            npm i -g @commitlint/cli @commitlint/config-conventional
-      - run:
-          name: Validate commit message format
-          command: commitlint --from=HEAD~5 -V
-
-  docker-bake:
+  
+    # Jobs
+  - &docker-bake
     executor: k911-docker-client
     environment:
       REGISTRY: docker.io
@@ -89,6 +63,36 @@ jobs:
       - run:
           name: Docker Buildx Bake all required images
           command: docker buildx bake --progress=plain $SERVICES
+
+jobs:
+  docker-bake-trusted: *docker-bake
+  docker-bake-untrusted: *docker-bake
+
+  shellcheck:
+    docker:
+      - image: koalaman/shellcheck-alpine:stable
+    steps:
+      - checkout
+      - run:
+          name: Shellcheck sh scripts
+          command: shellcheck *.sh
+
+  validate-commit-message:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install git
+          command: apk add --no-cache git
+      - run:
+          name: Install commitlint
+          command: |-
+            npm config set unsafe-perm true
+            npm i -g @commitlint/cli @commitlint/config-conventional
+      - run:
+          name: Validate commit message format
+          command: commitlint --from=HEAD~5 -V
 
   releaser-dry-run:
     docker:
@@ -140,7 +144,7 @@ workflows:
           requires:
             - validate-commit-message
             - shellcheck
-      - docker-bake-untrused:
+      - docker-bake-untrusted:
           <<: *filter-run-on-forked-pull-requests
           context: release-version-script-dockerhub
           requires:
