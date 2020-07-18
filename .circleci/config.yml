@@ -26,6 +26,45 @@ aliases:
         only: /pull\/[0-9]+/
 
 jobs:
+  docker-bake-tagged:
+    executor: k911-docker-client
+    environment:
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: release-version-script
+      SERVICES: releaser
+      TAG_LATEST: latest
+    steps:
+      - checkout
+      - *docker-remote-version
+      - run:
+          name: Export required dynamic env variables
+          command: |-
+            TAG="$(echo -n "$CIRCLE_TAG" | sed -E 's/^v(.*)/\1/g')"
+            echo "export TAG='$TAG'" >> $BASH_ENV
+      - run:
+          name: Print env
+          command: env
+      - run:
+          name: Print docker info
+          command: docker info
+      - run:
+          name: Login to Docker Hub
+          command: >-
+            DOCKER_REGISTRY="$REGISTRY"
+            DOCKER_USERNAME="$DOCKER_HUB_USERNAME"
+            DOCKER_PASSWORD="$DOCKER_HUB_TOKEN"
+            docker-registry-login
+      - run:
+          name: Enable Docker Buidx
+          environment:
+            DOCKER_BUILDX_CONTEXT_CREATE: "1"
+            DOCKER_BUILDX_BUILDER_CREATE: "1"
+          command: docker-use-buildx
+      - run:
+          name: Docker Buildx Bake all required images
+          command: docker buildx bake --progress=plain $SERVICES
+
   docker-bake:
     executor: k911-docker-client
     environment:
@@ -188,3 +227,11 @@ workflows:
           context: release-version-script-github
           requires:
             - approve-release
+
+  post-release:
+    when:
+      not:
+        equal: [ "", << pipeline.git.tag >> ]
+    jobs:
+      - docker-bake-tagged:
+          context: release-version-script-dockerhub
