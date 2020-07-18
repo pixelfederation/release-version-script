@@ -228,7 +228,7 @@ git push origin $PR_BASE
     \"base\": \"${PR_BASE}\"
 }"
     if [ "0" = "$DRY_RUN" ]; then
-        git push authorized "HEAD:$HEAD_BRANCH"
+        git push authorized "HEAD:refs/heads/$HEAD_BRANCH"
 
         curl -s -u "${GH_COMMITER_NAME}:${GH_TOKEN}" -X POST "https://api.github.com/repos/${GH_REPOSITORY}/pulls" \
             -H "Content-Type: application/vnd.github.v3+json" \
