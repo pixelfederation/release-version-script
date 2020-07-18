@@ -147,5 +147,6 @@ workflows:
       #       - releaser-dry-run
       - releaser:
           context: swoole-bundle-releaser
-          # requires:
-          #   - approve-release
+          requires:
+            - releaser-dry-run
+            # - approve-release
