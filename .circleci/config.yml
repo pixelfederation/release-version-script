@@ -12,6 +12,19 @@ aliases:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
       version: 19.03.12
 
+    # Filters
+  - &filter-run-on-local-branches
+    filters:
+      branches:
+        # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+        ignore: /pull\/[0-9]+/
+
+  - &filter-run-on-forked-pull-requests
+    filters:
+      branches:
+        # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
+        only: /pull\/[0-9]+/
+
 jobs:
   shellcheck:
     docker:
@@ -122,14 +135,22 @@ workflows:
       - validate-commit-message
       - shellcheck
       - approve-docker-bake:
+          <<: *filter-run-on-forked-pull-requests
           type: approval
           requires:
             - validate-commit-message
             - shellcheck
-      - docker-bake:
+      - docker-bake-untrused:
+          <<: *filter-run-on-forked-pull-requests
           context: release-version-script-dockerhub
           requires:
             - approve-docker-bake
+      - docker-bake-trusted:
+          <<: *filter-run-on-local-branches
+          context: release-version-script-dockerhub
+          requires:
+            - validate-commit-message
+            - shellcheck
       - releaser-dry-run:
           requires:
             - docker-bake
