@@ -12,21 +12,6 @@ aliases:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
       version: 19.03.12
 
-    # Filters
-  - &pull-request-checks-job-filters
-    filters:
-      branches:
-        ignore:
-          - master
-
-  - &release-job-filters
-    filters:
-      tags:
-        ignore: /.*/
-      branches:
-        only:
-          - master
-
 jobs:
   shellcheck:
     docker:
@@ -130,11 +115,12 @@ jobs:
 workflows:
   version: 2.1
   pull-request-checks:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
     jobs:
-      - validate-commit-message:
-          <<: *pull-request-checks-job-filters
-      - shellcheck:
-          <<: *pull-request-checks-job-filters
+      - validate-commit-message
+      - shellcheck
       - docker-bake:
           requires:
             - validate-commit-message
@@ -143,27 +129,23 @@ workflows:
           requires:
             - docker-bake
   release:
+    when:
+      equal: [ master, << pipeline.git.branch >> ]
     jobs:
-      - validate-commit-message:
-          <<: *release-job-filters
-      - shellcheck:
-          <<: *release-job-filters
+      - validate-commit-message
+      - shellcheck
       - docker-bake:
-          <<: *release-job-filters
           requires:
             - validate-commit-message
             - shellcheck
       - releaser-dry-run:
-          <<: *release-job-filters
           requires:
             - docker-bake
       - approve-release:
-          <<: *release-job-filters
           type: approval
           requires:
             - releaser-dry-run
       - releaser:
-          <<: *release-job-filters
           context: swoole-bundle-releaser
           requires:
             - approve-release
