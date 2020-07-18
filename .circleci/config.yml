@@ -24,9 +24,9 @@ aliases:
       branches:
         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
         only: /pull\/[0-9]+/
-  
-    # Jobs
-  - &docker-bake
+
+jobs:
+  docker-bake:
     executor: k911-docker-client
     environment:
       REGISTRY: docker.io
@@ -63,10 +63,6 @@ aliases:
       - run:
           name: Docker Buildx Bake all required images
           command: docker buildx bake --progress=plain $SERVICES
-
-jobs:
-  docker-bake-trusted: *docker-bake
-  docker-bake-untrusted: *docker-bake
 
   shellcheck:
     docker:
@@ -144,12 +140,12 @@ workflows:
           requires:
             - validate-commit-message
             - shellcheck
-      - docker-bake-untrusted:
+      - docker-bake:
           <<: *filter-run-on-forked-pull-requests
           context: release-version-script-dockerhub
           requires:
             - approve-docker-bake
-      - docker-bake-trusted:
+      - docker-bake:
           <<: *filter-run-on-local-branches
           context: release-version-script-dockerhub
           requires:
