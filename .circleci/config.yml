@@ -136,11 +136,34 @@ workflows:
       - shellcheck:
           <<: *pull-request-checks-job-filters
       - docker-bake:
-          <<: *pull-request-checks-job-filters
           requires:
             - validate-commit-message
             - shellcheck
       - releaser-dry-run:
-          <<: *pull-request-checks-job-filters
           requires:
             - docker-bake
+  release:
+    jobs:
+      - validate-commit-message:
+          <<: *release-job-filters
+      - shellcheck:
+          <<: *release-job-filters
+      - docker-bake:
+          <<: *release-job-filters
+          requires:
+            - validate-commit-message
+            - shellcheck
+      - releaser-dry-run:
+          <<: *release-job-filters
+          requires:
+            - docker-bake
+      - approve-release:
+          <<: *release-job-filters
+          type: approval
+          requires:
+            - releaser-dry-run
+      - releaser:
+          <<: *release-job-filters
+          context: swoole-bundle-releaser
+          requires:
+            - approve-release
