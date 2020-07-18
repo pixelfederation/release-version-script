@@ -141,11 +141,11 @@ workflows:
       - releaser-dry-run:
           requires:
             - docker-bake
-      - approve-release:
-          type: approval
-          requires:
-            - releaser-dry-run
+      # - approve-release:
+      #     type: approval
+      #     requires:
+      #       - releaser-dry-run
       - releaser:
           context: swoole-bundle-releaser
-          requires:
-            - approve-release
+          # requires:
+          #   - approve-release
