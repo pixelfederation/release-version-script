@@ -121,10 +121,15 @@ workflows:
     jobs:
       - validate-commit-message
       - shellcheck
-      - docker-bake:
+      - approve-docker-bake:
+          type: approval
           requires:
             - validate-commit-message
             - shellcheck
+      - docker-bake:
+          context: release-version-script-dockerhub
+          requires:
+            - approve-docker-bake
       - releaser-dry-run:
           requires:
             - docker-bake
@@ -135,18 +140,18 @@ workflows:
       - validate-commit-message
       - shellcheck
       - docker-bake:
+          context: release-version-script-dockerhub
           requires:
             - validate-commit-message
             - shellcheck
       - releaser-dry-run:
           requires:
             - docker-bake
-      # - approve-release:
-      #     type: approval
-      #     requires:
-      #       - releaser-dry-run
-      - releaser:
-          context: swoole-bundle-releaser
+      - approve-release:
+          type: approval
           requires:
             - releaser-dry-run
-            # - approve-release
+      - releaser:
+          context: release-version-script-github
+          requires:
+            - approve-release
