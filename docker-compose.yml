@@ -1,13 +1,10 @@
-version: "3.6"
-
-volumes:
-  coverage: {}
+version: "3.7"
 
 services:
   releaser:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-test-release-script}-releaser:${TAG:-local}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-release-version-script}:${TAG:-local}"
     build:
-      context: ./.circleci
+      context: .
       args:
         NODE_TAG: "${NODE_VERSION:-14}-alpine${ALPINE_VERSION:-3.12}"
     environment:
@@ -22,4 +19,4 @@ services:
     volumes:
       - "./.git:/usr/src/app/.git:rw"
       - "./CHANGELOG.md:/usr/src/app/CHANGELOG.md:rw"
-      - "./.circleci/release-version.sh:/usr/local/bin/release-version:rw"
+      - "./release-version.sh:/usr/local/bin/release-version:rw"

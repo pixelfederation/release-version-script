@@ -1,0 +1,107 @@
+version: 2.1
+executors:
+  k911-docker-client:
+    docker:
+      - image: k911/docker-client:19.03.12-compose
+    working_directory: ~/workdir
+
+aliases:
+    # Remote Docker config
+  - &docker-remote-version
+    setup_remote_docker:
+      # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+      version: 19.03.12
+
+    # Filters
+  - &pull-request-checks-job-filters
+    filters:
+      branches:
+        ignore:
+          - master
+
+  - &release-job-filters
+    filters:
+      tags:
+        ignore: /.*/
+      branches:
+        only:
+          - master
+
+jobs:
+  shellcheck:
+    docker:
+      - image: koalaman/shellcheck-alpine:stable
+    steps:
+      - checkout
+      - run:
+          name: Shellcheck sh scripts
+          command: shellcheck *.sh
+
+  validate-commit-message:
+    docker:
+      - image: node:lts-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install git
+          command: apk add --no-cache git
+      - run:
+          name: Install commitlint
+          command: |-
+            npm config set unsafe-perm true
+            npm i -g @commitlint/cli @commitlint/config-conventional
+      - run:
+          name: Validate commit message format
+          command: commitlint --from=HEAD~20 -V
+
+  docker-bake:
+    executor: k911-docker-client
+    environment:
+      REGISTRY: docker.io
+      NAMESPACE: k911
+      IMAGE: release-version-script
+      SERVICES: releaser
+    steps:
+      - checkout
+      - *docker-remote-version
+      - run:
+          name: Export required dynamic env variables
+          command: |-
+            TAG="master-$CIRCLE_SHA1"
+            echo "export TAG='$TAG'" >> $BASH_ENV
+      - run:
+          name: Print env
+          command: env
+      - run:
+          name: Print docker info
+          command: docker info
+      - run:
+          name: Login to Docker Hub
+          command: >-
+            DOCKER_REGISTRY="$REGISTRY"
+            DOCKER_USERNAME="$DOCKER_HUB_USERNAME"
+            DOCKER_PASSWORD="$DOCKER_HUB_TOKEN"
+            docker-registry-login
+      - run:
+          name: Enable Docker Buidx
+          environment:
+            DOCKER_BUILDX_CONTEXT_CREATE: "1"
+            DOCKER_BUILDX_BUILDER_CREATE: "1"
+          command: docker-use-buildx
+      - run:
+          name: Docker Buildx Bake all required images
+          command: docker buildx bake --progress=plain $SERVICES
+
+workflows:
+  version: 2.1
+  pull-request-checks:
+    jobs:
+      - validate-commit-message:
+          <<: *pull-request-checks-job-filters
+      - shellcheck:
+          <<: *pull-request-checks-job-filters
+      - docker-bake:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - validate-commit-message
+            - shellcheck
