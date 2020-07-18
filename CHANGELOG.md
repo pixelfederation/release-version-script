@@ -1,3 +1,12 @@
+## [0.2.2](https://github.com/k911/release-version-script/compare/v0.2.1...v0.2.2) (2020-07-18)
+
+[Full changelog](https://github.com/k911/release-version-script/compare/v0.2.1...v0.2.2)
+
+### Bug Fixes
+
+* **release:** wait for releaser dry run to finish ([b3dac5a](https://github.com/k911/release-version-script/commit/b3dac5abce89e393853f334b760b139769e2d5e5))
+* release without approve ([e705880](https://github.com/k911/release-version-script/commit/e705880d0ebbccea6b54bca3b0df2075f8ddcec9))
+
 ## [0.2.1](https://github.com/k911/release-version-script/compare/v0.2.0...v0.2.1) (2020-07-18)
 
 [Full changelog](https://github.com/k911/release-version-script/compare/v0.2.0...v0.2.1)
