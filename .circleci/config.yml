@@ -52,7 +52,7 @@ jobs:
             npm i -g @commitlint/cli @commitlint/config-conventional
       - run:
           name: Validate commit message format
-          command: commitlint --from=HEAD~20 -V
+          command: commitlint --from=HEAD~5 -V
 
   docker-bake:
     executor: k911-docker-client
