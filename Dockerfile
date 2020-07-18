@@ -1,7 +1,7 @@
 ARG NODE_TAG="14-alpine3.12"
 FROM node:${NODE_TAG} as Runner
 WORKDIR /usr/src/app
-RUN apk add --no-cache bash git curl jq
+RUN apk add --no-cache bash git curl jq openssh-client
 RUN yarn global add conventional-changelog-cli conventional-recommended-bump
 COPY release-version.sh /usr/local/bin/release-version
 RUN chmod a+x /usr/local/bin/release-version
