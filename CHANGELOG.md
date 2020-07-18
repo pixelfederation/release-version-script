@@ -1,3 +1,11 @@
+## [0.2.4](https://github.com/k911/release-version-script/compare/v0.2.3...v0.2.4) (2020-07-18)
+
+[Full changelog](https://github.com/k911/release-version-script/compare/v0.2.3...v0.2.4)
+
+### Bug Fixes
+
+* **docker:** update repository name ([a9d769a](https://github.com/k911/release-version-script/commit/a9d769a9dde51391bee9b093109bda93b6be1b51))
+
 ## [0.2.3](https://github.com/k911/release-version-script/compare/v0.2.2...v0.2.3) (2020-07-18)
 
 [Full changelog](https://github.com/k911/release-version-script/compare/v0.2.2...v0.2.3)
