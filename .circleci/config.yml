@@ -67,7 +67,7 @@ jobs:
       - run:
           name: Export required dynamic env variables
           command: |-
-            TAG="master-$CIRCLE_SHA1"
+            TAG="build-$CIRCLE_SHA1"
             echo "export TAG='$TAG'" >> $BASH_ENV
       - run:
           name: Print env
@@ -92,6 +92,41 @@ jobs:
           name: Docker Buildx Bake all required images
           command: docker buildx bake --progress=plain $SERVICES
 
+  releaser-dry-run:
+    docker:
+      - image: docker.io/k911/release-version-script:build-$CIRCLE_SHA1
+    working_directory: /usr/src/app
+    environment:
+      DEBUG: "0"
+      DRY_RUN: "1"
+      GH_TOKEN: "xxx"
+      GH_RELEASE_DRAFT: "true"
+    steps:
+      - checkout
+      - run:
+          name: Dry run release-version script
+          command: release-version
+      - run:
+          name: Dry run release-version script with debug
+          when: on_fail
+          environment:
+            DEBUG: "1"
+          command: release-version
+
+  releaser:
+    docker:
+      - image: docker.io/k911/release-version-script:build-$CIRCLE_SHA1
+    working_directory: /usr/src/app
+    environment:
+      DEBUG: "1"
+      DRY_RUN: "0"
+      GH_RELEASE_DRAFT: "false"
+    steps:
+      - checkout
+      - run:
+          name: Dry run release-version script
+          command: release-version
+
 workflows:
   version: 2.1
   pull-request-checks:
@@ -105,3 +140,7 @@ workflows:
           requires:
             - validate-commit-message
             - shellcheck
+      - releaser-dry-run:
+          <<: *pull-request-checks-job-filters
+          requires:
+            - docker-bake
