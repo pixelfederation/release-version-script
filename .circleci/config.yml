@@ -25,6 +25,13 @@ aliases:
         # Forked pull requests have CIRCLE_BRANCH set to pull/XXX
         only: /pull\/[0-9]+/
 
+  - &filter-run-on-tags
+    filters:
+      tags:
+        only: /^v.*/
+      branches:
+        ignore: /.*/
+
 jobs:
   docker-bake-tagged:
     executor: k911-docker-client
@@ -229,9 +236,7 @@ workflows:
             - approve-release
 
   post-release:
-    when:
-      not:
-        equal: [ "", << pipeline.git.tag >> ]
     jobs:
       - docker-bake-tagged:
+          <<: *filter-run-on-tags
           context: release-version-script-dockerhub
