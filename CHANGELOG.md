@@ -1,3 +1,11 @@
+# [0.3.0](https://github.com/k911/release-version-script/compare/v0.2.4...v0.3.0) (2020-07-19)
+
+[Full changelog](https://github.com/k911/release-version-script/compare/v0.2.4...v0.3.0)
+
+### Features
+
+* add openssh client ([cc7acd1](https://github.com/k911/release-version-script/commit/cc7acd14395cd67a5587144ad2ba25a1e3731a19))
+
 ## [0.2.4](https://github.com/k911/release-version-script/compare/v0.2.3...v0.2.4) (2020-07-18)
 
 [Full changelog](https://github.com/k911/release-version-script/compare/v0.2.3...v0.2.4)
