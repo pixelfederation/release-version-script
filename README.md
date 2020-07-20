@@ -1,4 +1,8 @@
-# Test Release Version Script
+# Release Version Script
+
+## Published releases are available on DockerHub
+
+https://hub.docker.com/r/k911/release-version-script
 
 ## Docker
 
