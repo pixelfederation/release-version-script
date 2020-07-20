@@ -1,3 +1,11 @@
+## [0.3.1](https://github.com/k911/release-version-script/compare/v0.3.0...v0.3.1) (2020-07-20)
+
+[Full changelog](https://github.com/k911/release-version-script/compare/v0.3.0...v0.3.1)
+
+### Miscellaneous
+
+* Minor fixes
+
 # [0.3.0](https://github.com/k911/release-version-script/compare/v0.2.4...v0.3.0) (2020-07-19)
 
 [Full changelog](https://github.com/k911/release-version-script/compare/v0.2.4...v0.3.0)
