@@ -2,7 +2,7 @@ version: 2.1
 executors:
   k911-docker-client:
     docker:
-      - image: k911/docker-client:19.03.13-compose
+      - image: k911/docker-client:20.10.1-compose
     working_directory: ~/workdir
 
 aliases:
