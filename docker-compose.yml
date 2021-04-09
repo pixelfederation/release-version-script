@@ -6,7 +6,7 @@ services:
     build:
       context: .
       args:
-        NODE_TAG: "${NODE_VERSION:-15}-alpine${ALPINE_VERSION:-3.12}"
+        NODE_TAG: "${NODE_VERSION:-15}-alpine${ALPINE_VERSION:-3.13}"
     environment:
       DEBUG: "${DEBUG:-1}"
       DRY_RUN: "${DRY_RUN:-1}"

@@ -2,7 +2,7 @@ version: 2.1
 executors:
   k911-docker-client:
     docker:
-      - image: k911/docker-client:20.10.1-compose
+      - image: k911/docker-client:20.10.5-compose
     working_directory: ~/workdir
 
 aliases:
@@ -10,7 +10,7 @@ aliases:
   - &docker-remote-version
     setup_remote_docker:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-      version: 19.03.13
+      version: 20.10.2
 
     # Filters
   - &filter-run-on-local-branches
