@@ -7,9 +7,9 @@ COPY release-version.sh /usr/local/bin/release-version
 RUN chmod a+x /usr/local/bin/release-version
 ENV CURRENT_VERSION="" \
     DRY_RUN="0" \
-    GH_REPOSITORY="k911/swoole-bundle" \
-    GH_COMMITER_NAME="k911" \
-    GH_COMMITER_EMAIL="konradobal@gmail.com" \
+    GH_REPOSITORY="pixelfederation/swoole-bundle" \
+    GH_COMMITER_NAME="Rastusik" \
+    GH_COMMITER_EMAIL="mfris@pixelfederation.com" \
     GH_TOKEN="" \
     GH_RELEASE_DRAFT="false" \
     GH_RELEASE_PRERELEASE="false"

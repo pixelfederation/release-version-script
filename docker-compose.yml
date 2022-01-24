@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   releaser:
-    image: "${REGISTRY:-docker.io}/${NAMESPACE:-k911}/${IMAGE:-release-version-script}:${TAG:-local}"
+    image: "${REGISTRY:-docker.io}/${NAMESPACE:-pixelfederation}/${IMAGE:-release-version-script}:${TAG:-local}"
     build:
       context: .
       args:
@@ -10,7 +10,7 @@ services:
     environment:
       DEBUG: "${DEBUG:-1}"
       DRY_RUN: "${DRY_RUN:-1}"
-      GH_REPOSITORY: "${GH_REPOSITORY:-k911/release-version-script}"
+      GH_REPOSITORY: "${GH_REPOSITORY:-pixelfederation/release-version-script}"
       GH_COMMITER_NAME: "${GH_COMMITER_NAME:-swoole-bundle-bot}"
       GH_COMMITER_EMAIL: "${GH_COMMITER_EMAIL:-swoolebundle@gmail.com}"
       GH_TOKEN: "${GH_TOKEN:-xxxxxxxx}"
