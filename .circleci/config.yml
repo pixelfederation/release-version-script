@@ -1,8 +1,8 @@
 version: 2.1
 executors:
-  k911-docker-client:
+  pixelfederation-docker-client:
     docker:
-      - image: k911/docker-client:20.10.5-compose
+      - image: pixelfederation/docker-client:20.10.5-compose
     working_directory: ~/workdir
 
 aliases:
@@ -34,10 +34,10 @@ aliases:
 
 jobs:
   docker-bake-tagged:
-    executor: k911-docker-client
+    executor: pixelfederation-docker-client
     environment:
       REGISTRY: docker.io
-      NAMESPACE: k911
+      NAMESPACE: pixelfederation
       IMAGE: release-version-script
       SERVICES: releaser
       TAG_LATEST: latest
@@ -73,10 +73,10 @@ jobs:
           command: docker buildx bake --progress=plain $SERVICES
 
   docker-bake:
-    executor: k911-docker-client
+    executor: pixelfederation-docker-client
     environment:
       REGISTRY: docker.io
-      NAMESPACE: k911
+      NAMESPACE: pixelfederation
       IMAGE: release-version-script
       SERVICES: releaser
     steps:
@@ -138,7 +138,7 @@ jobs:
 
   releaser-dry-run:
     docker:
-      - image: docker.io/k911/release-version-script:build-$CIRCLE_SHA1
+      - image: docker.io/pixelfederation/release-version-script:build-$CIRCLE_SHA1
     working_directory: /usr/src/app
     environment:
       DEBUG: "0"
@@ -159,7 +159,7 @@ jobs:
 
   releaser:
     docker:
-      - image: docker.io/k911/release-version-script:build-$CIRCLE_SHA1
+      - image: docker.io/pixelfederation/release-version-script:build-$CIRCLE_SHA1
     working_directory: /usr/src/app
     environment:
       DEBUG: "1"

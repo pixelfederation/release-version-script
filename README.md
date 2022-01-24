@@ -2,7 +2,7 @@
 
 ## Published releases are available on DockerHub
 
-https://hub.docker.com/r/k911/release-version-script
+https://hub.docker.com/r/pixelfederation/release-version-script
 
 ## Docker
 

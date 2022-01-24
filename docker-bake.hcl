@@ -3,7 +3,7 @@ variable "REGISTRY" {
 }
 
 variable "NAMESPACE" {
-  default = "k911"
+  default = "pixelfederation"
 }
 
 variable "IMAGE" {
@@ -19,8 +19,8 @@ variable "TAG_LATEST" {
 }
 
 target "releaser" {
-  cache-from = ["type=registry,ref=docker.io/k911/release-version-script-cache:releaser"]
-  cache-to   = ["type=registry,ref=docker.io/k911/release-version-script-cache:releaser,mode=max"]
+  cache-from = ["type=registry,ref=docker.io/pixelfederation/release-version-script-cache:releaser"]
+  cache-to   = ["type=registry,ref=docker.io/pixelfederation/release-version-script-cache:releaser,mode=max"]
   output     = ["type=registry"]
   tags = TAG_LATEST == "" ? [
     "${REGISTRY}/${NAMESPACE}/${IMAGE}:${TAG}",
