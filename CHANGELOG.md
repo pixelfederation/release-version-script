@@ -1,3 +1,11 @@
+## [0.3.5](https://github.com/pixelfederation/release-version-script/compare/v0.3.4...v0.3.5) (2022-03-20)
+
+[Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.4...v0.3.5)
+
+### Miscellaneous
+
+* Minor fixes
+
 ## [0.3.4](https://github.com/k911/release-version-script/compare/v0.3.3...v0.3.4) (2021-04-09)
 
 [Full changelog](https://github.com/k911/release-version-script/compare/v0.3.3...v0.3.4)
