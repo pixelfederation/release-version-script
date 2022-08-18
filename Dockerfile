@@ -7,7 +7,7 @@ COPY release-version.sh /usr/local/bin/release-version
 RUN chmod a+x /usr/local/bin/release-version
 ENV CURRENT_VERSION="" \
     DRY_RUN="0" \
-    GH_REPOSITORY="pixelfederation/swoole-bundle" \
+    GH_REPOSITORY="pixelfederation/release-version-script" \
     GH_COMMITER_NAME="swoole-bundle-bot" \
     GH_COMMITER_EMAIL="swoolebundle@gmail.com" \
     GH_TOKEN="" \
