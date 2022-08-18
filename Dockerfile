@@ -8,8 +8,8 @@ RUN chmod a+x /usr/local/bin/release-version
 ENV CURRENT_VERSION="" \
     DRY_RUN="0" \
     GH_REPOSITORY="pixelfederation/swoole-bundle" \
-    GH_COMMITER_NAME="Rastusik" \
-    GH_COMMITER_EMAIL="mfris@pixelfederation.com" \
+    GH_COMMITER_NAME="swoole-bundle-bot" \
+    GH_COMMITER_EMAIL="swoolebundle@gmail.com" \
     GH_TOKEN="" \
     GH_RELEASE_DRAFT="false" \
     GH_RELEASE_PRERELEASE="false"
