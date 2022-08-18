@@ -1,3 +1,11 @@
+## [0.3.6](https://github.com/pixelfederation/release-version-script/compare/v0.3.5...v0.3.6) (2022-08-18)
+
+[Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.5...v0.3.6)
+
+### Bug Fixes
+
+* **build:** fixed default github repository name in dockerfile ([9f40551](https://github.com/pixelfederation/release-version-script/commit/9f40551ea5311e62930c4b25366abbe86031e853))
+
 ## [0.3.5](https://github.com/pixelfederation/release-version-script/compare/v0.3.4...v0.3.5) (2022-03-20)
 
 [Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.4...v0.3.5)
