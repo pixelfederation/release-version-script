@@ -1,3 +1,11 @@
+## [0.3.7](https://github.com/pixelfederation/release-version-script/compare/v0.3.6...v0.3.7) (2022-08-19)
+
+[Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.6...v0.3.7)
+
+### Bug Fixes
+
+* **ci:** added GH_REPOSITORY as variable to release verson script run in CI ([bcb3c0b](https://github.com/pixelfederation/release-version-script/commit/bcb3c0bf377246124babf4ddde4afddc95519599))
+
 ## [0.3.6](https://github.com/pixelfederation/release-version-script/compare/v0.3.5...v0.3.6) (2022-08-18)
 
 [Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.5...v0.3.6)
