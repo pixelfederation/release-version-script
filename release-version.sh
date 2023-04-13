@@ -144,7 +144,7 @@ echo "Preparing release of version: ${NEW_VERSION}"
 RELEASE_TAG="v${NEW_VERSION}"
 # Save release notes
 git tag "${RELEASE_TAG}" > /dev/null 2>&1
-GH_RELEASE_NOTES_HEADER="$(conventional-changelog -p angular -r 2 | awk 'NR > 4 { print }' | head -n 1)"
+GH_RELEASE_NOTES_HEADER="$(conventional-changelog -p angular -r 2 | head -n 5 | tail -n 1)"
 git tag -d "${RELEASE_TAG}" > /dev/null 2>&1
 GH_RELEASE_NOTES="$(conventional-changelog -p angular | awk 'NR > 3 { print }')"
 if [ "" = "$(echo -n "$GH_RELEASE_NOTES" | tr '\n' ' ')" ]; then
