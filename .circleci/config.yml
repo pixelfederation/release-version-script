@@ -133,7 +133,7 @@ jobs:
       - run:
           name: Install commitlint
           command: |-
-            npm config set unsafe-perm true
+            echo "unsafe-perm=true" >> .npmrc
             npm i -g @commitlint/cli @commitlint/config-conventional
       - run:
           name: Validate commit message format
