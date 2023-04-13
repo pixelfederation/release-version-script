@@ -2,7 +2,7 @@ version: 2.1
 executors:
   pixelfederation-docker-client:
     docker:
-      - image: pixelfederation/docker-client:20.10.5-compose
+      - image: pixelfederation/docker-client:20.10.17-compose
     working_directory: ~/workdir
 
 aliases:
@@ -10,7 +10,7 @@ aliases:
   - &docker-remote-version
     setup_remote_docker:
       # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-      version: 20.10.2
+      version: 20.10.17
 
     # Filters
   - &filter-run-on-local-branches
