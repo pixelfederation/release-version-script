@@ -114,6 +114,9 @@ jobs:
     docker:
       - image: koalaman/shellcheck-alpine:stable
     steps:
+      - run:
+          name: Install git and openssh-client
+          command: apk add --no-cache git openssh-client
       - checkout
       - run:
           name: Shellcheck sh scripts
@@ -123,10 +126,10 @@ jobs:
     docker:
       - image: node:lts-alpine
     steps:
-      - checkout
       - run:
           name: Install git
-          command: apk add --no-cache git
+          command: apk add --no-cache git openssh-client
+      - checkout
       - run:
           name: Install commitlint
           command: |-
