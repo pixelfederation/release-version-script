@@ -1,3 +1,13 @@
+## [0.3.8](https://github.com/pixelfederation/release-version-script/compare/v0.3.7...v0.3.8) (2023-04-14)
+
+[Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.7...v0.3.8)
+
+### Bug Fixes
+
+* **ci:** fix for insafe-perm configuration on new nodejs ([1d02ef1](https://github.com/pixelfederation/release-version-script/commit/1d02ef1340d24c6cd3ff6282164896265dabd29f))
+* **ci:** installing git and openssh client in ci jobs ([e7bdf03](https://github.com/pixelfederation/release-version-script/commit/e7bdf03c0771b0cb08e09a7f21d695d7381275c0))
+* **script:** fix for acquiring GH_RELEASE_NOTES_HEADER in release-version script ([56df868](https://github.com/pixelfederation/release-version-script/commit/56df8686fa6ed09862ea8938f22b411c6ee74515))
+
 ## [0.3.7](https://github.com/pixelfederation/release-version-script/compare/v0.3.6...v0.3.7) (2022-08-19)
 
 [Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.6...v0.3.7)
