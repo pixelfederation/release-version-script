@@ -32,7 +32,7 @@ GH_TOKEN="${GH_TOKEN:?"Provide \"GH_TOKEN\" variable with GitHub Personal Access
 git config user.name "${GH_COMMITER_NAME}"
 git config user.email "${GH_COMMITER_EMAIL}"
 
-GIT_COMMIT_MESSAGE_FIRST_LINE="$(git log -1 --pretty=%B | head -n 1)"
+GIT_COMMIT_MESSAGE_FIRST_LINE="$(git show-branch --no-name HEAD)"
 GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED="$(echo "$GIT_COMMIT_MESSAGE_FIRST_LINE" | sed -E 's/^chore\(release\)\: v([a-zA-Z0-9\.\-]+) \:tada\:/\1/')"
 # If sed matches, it means it is a release commit, otherwise strings should be equal
 if [[ "$GIT_COMMIT_MESSAGE_FIRST_LINE" != "$GIT_COMMIT_MESSAGE_RELEASE_COMMIT_MATCHED" ]]; then
