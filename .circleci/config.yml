@@ -70,7 +70,7 @@ jobs:
           command: docker-use-buildx
       - run:
           name: Docker Buildx Bake all required images
-          command: docker buildx bake --progress=plain $SERVICES
+          command: docker buildx bake --progress=plain --provenance=false $SERVICES
 
   docker-bake:
     executor: pixelfederation-docker-client
@@ -108,7 +108,7 @@ jobs:
           command: docker-use-buildx
       - run:
           name: Docker Buildx Bake all required images
-          command: docker buildx bake --progress=plain $SERVICES
+          command: docker buildx bake --progress=plain --provenance=false $SERVICES
 
   shellcheck:
     docker:
