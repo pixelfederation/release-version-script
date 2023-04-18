@@ -1,3 +1,11 @@
+## [0.3.9](https://github.com/pixelfederation/release-version-script/compare/v0.3.8...v0.3.9) (2023-04-18)
+
+[Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.8...v0.3.9)
+
+### Bug Fixes
+
+* **release-version:** fixed 141 exist status from pipe when getting first line of long git history ([a1f43ed](https://github.com/pixelfederation/release-version-script/commit/a1f43ed119038bf7a8c989cedeee8f3686d258d6))
+
 ## [0.3.8](https://github.com/pixelfederation/release-version-script/compare/v0.3.7...v0.3.8) (2023-04-13)
 
 [Full changelog](https://github.com/pixelfederation/release-version-script/compare/v0.3.7...v0.3.8)
